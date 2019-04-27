@@ -27,29 +27,33 @@ Quando o garçom chega, ele pega a pizza e a leva à mesa correspondente.
 O garçom leva a pizza até a mesa.
 Os clientes comem a pizza, mas de acordo com a Lei 47.574/97, os clientes devem pegar fatias da pizza usando um pegador de pizza.
 Há apenas um desses pegadores por pizza.
-Recursos e Execução
+
+# Recursos e Execução
 Atentem aos seguintes recursos que devem ser gerenciados no simulador:
 
-1 Pá de pizza.
-1 Forno com capacidade para tam_forno pizzas.
-n_pizzaiolos pizzaiolos.
-n_mesas mesas de 4 lugares.
-1 Espaço vazio no balcão.
-1 Deck de pedidos capaz de conter tam_deck pedidos.
-n_garçons Garçons.
-O controle de concorrência envolvendo esses recursos deve ser feito de modo a maximizar o paralelismo da pizzaria, ao mesmo tempo que as regras expostas a seguir são respeitadas.
+ - 1 Pá de pizza.
+ - 1 Forno com capacidade para __tam_forno__ pizzas.
+ - __n_pizzaiolos__ pizzaiolos.
+ - __n_mesas__ mesas de 4 lugares.
+ - 1 Espaço vazio no balcão.
+ - 1 Deck de pedidos capaz de conter __tam_deck pedidos__.
+ - __n_garçons__ Garçons.
+O controle de concorrência envolvendo esses recursos deve ser feito de modo a maximizar o paralelismo da pizzaria, ao mesmo tempo que as 
+regras expostas a seguir são respeitadas.
 
-A execução do programa recebe os parâmetros (marcados em negrito) como segue:
+A execução do programa recebe os parâmetros como segue:
 
-./program tam_forno  n_pizzaiolos  n_mesas  n_garcons  tam_deck  n_grupos  segs_execução
+`./program tam_forno  n_pizzaiolos  n_mesas  n_garcons  tam_deck  n_grupos  segs_execução`
+
 Os últimos argumentos não representam número de recursos:
 
-n_grupos é o número de grupos de clientes que podem chegar concorrentemente à pizzeria.
-As threads que simulam clientes e geram a chegada dos grupos são gerenciadas em helper.c. A função main() dada chama as funções (já definidas)  helper_init() para configurar e pizzeria_open() para inciar a geração de até n_grupos grupos de clientes concorrentemente.
-segs_execução define o tempo da simulação em segundos do mundo real (supondo que você esteja no mundo real). Cada segundo na pizzeria equivale a 1 milissegundo no mundo real.
-O resultado do programa parece com isso (mensagens impressas pelo main() e por funções em helper.c):
-
-`$ ./program 2 2 40 3 8 40 10`
+ - __n_grupos__ é o número de grupos de clientes que podem chegar concorrentemente à pizzeria.
+ - As threads que simulam clientes e geram a chegada dos grupos são gerenciadas em __helper.c__. A função `main()` dada chama as funções (já definidas)  `helper_init()` para configurar e `pizzeria_open()` para inciar a geração de até __n_grupos__ grupos de clientes concorrentemente.
+ - __segs_execução__ define o tempo da simulação em segundos do mundo real (supondo que você esteja no mundo real). Cada segundo na pizzeria equivale a 1 milissegundo no mundo real.
+ 
+O resultado do programa parece com isso (mensagens impressas pelo `main()` e por funções em __helper.c__):
+```
+$ ./program 2 2 40 3 8 40 10
 Executando simulação por 10 segundos
 Passados 10 segundos, fechando pizzaria
 Simulação terminada!
@@ -60,15 +64,18 @@ Tempo para pegar mesas: 34 amostras, de 0.000 a 0.013 com média de 0.003
 Tempo de entrega da pizza: 30 amostras, de 789.960 a 1547.549 com média de 1406.072
 Tempo para chamar garçom: 60 amostras, de 0.000 a 0.003 com média de 0.001
 Tempo da visita do cliente: 30 amostras, de 835.049 a 1590.032 com média de 1448.389
-A execução do programa, usando a função main() fornecida no esqueleto, irá verificar o atendimento de algumas regras. Algumas regras serão verificadas apenas com o script secreto dos estagiários. Discernir o certo do errado (e quando procurar ajuda) é parte da tarefa. Em caso de problemas, mensagens detalhadas podem ser habilitadas usando a variável de ambiente INE5410_INFO:
+```
+A execução do programa, usando a função `main()` fornecida no esqueleto, irá verificar o atendimento de algumas regras. __Algumas 
+regras serão verificadas apenas com o script secreto dos estagiários__. Discernir o certo do errado (e quando procurar ajuda) é parte da tarefa. 
+Em caso de problemas, mensagens detalhadas podem ser habilitadas usando a variável de ambiente __INE5410_INFO__:
 ```
 INE5410_INFO=1 ./program tam_forno  n_pizzaiolos  n_mesas  n_garcons  tam_deck  n_grupos  segs_execução
 Seguem alguns cenários de teste:
 ```
 Cenários
-|              | Cenários   |                     |                    |                  |                    |
-|--------------|------------|---------------------|--------------------|:----------------:|--------------------|
+
 | Parâmetro    | Mini forno | Greve de Pizzaiolos | Inflação moveleira | Greve de garçons | Escassez de fichas |
+|--------------|------------|---------------------|--------------------|------------------|--------------------|
 | tam_forno    | 2          | 4                   | 10                 | 10               | 10                 |
 | n_pizzaiolos | 10         | 2                   | 10                 | 10               | 10                 |
 | n_mesas      | 40         | 40                  | 10                 | 40               | 40                 |
