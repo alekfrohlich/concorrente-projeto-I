@@ -2,7 +2,7 @@
 
  ANPIRMB (Associação Nacional de Pizzarias Italianas em Regiões Metropolitanas do Brasil) contratou vocês para escrever um programa que simula uma pizzaria.
 
-![](img.jpg?raw=true "Title")
+![](pizzeria.png?raw=true "Pizzeria")
 
 
 A pizzaria a ser simulada é uma pizzaria à la carte. O funcionamento da pizzaria segue esse fluxo básico:
