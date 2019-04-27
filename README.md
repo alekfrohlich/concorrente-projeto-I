@@ -167,29 +167,11 @@ Chamada pelo cliente líder do grupo.
 Pode ser útil criar outras funções chamadas por essas ou por novas threads.
 
 Dicas
-As implementações de pegar_mesas() e garcom_tchau() são traiçoeiras.
-Ao executar o programa mensagens de CUIDADO: e ERRO: irão aparecer para alguns problemas.
-Leaks de memória causarão descontos na nota e podem ser sintoma de algo errado.
-Normalmente, pizzas não queimam.
-Os dois gabaritos implementados possuem menos de 281 linhas (incluindo alguns comentários e linhas em branco).
-Use isso como parâmetros para evitar gambiarras pirotécnicas ou sofrimento prolongado, não como uma competição de code golf.
-Grupos e Avaliação
-O trabalho deverá ser realizado em grupos de 2 alunos. Os grupos deverão ser formados com auxílio da ferramenta Escolha de Grupos (T1 - Turma A), no caso de alunos matriculados na Turma A, ou Escolha de Grupos (T1 - Turma B), no caso de alunos matriculados na Turma B. Não será permitida a formação de grupos contendo alunos matriculados em turmas distintas.
+> As implementações de pegar_mesas() e garcom_tchau() são traiçoeiras.
+> Ao executar o programa mensagens de CUIDADO: e ERRO: irão aparecer para alguns problemas.
+> Leaks de memória causarão descontos na nota e podem ser sintoma de algo errado.
+> Normalmente, pizzas não queimam.
+> Os dois gabaritos implementados possuem menos de 281 linhas (incluindo alguns comentários e linhas em branco).
+> Use isso como parâmetros para evitar gambiarras pirotécnicas ou sofrimento prolongado, não como uma competição de code golf.
 
-Os trabalhos serão apresentados nos dias definidos no cronograma disponível no Moodle. O professor irá avaliar a corretude, o desempenho e a clareza da solução proposta. Não será permitida a entrega de trabalhos fora desse prazo.
-
-Durante a apresentação, o professor irá avaliar o conhecimento individual dos alunos sobre os conteúdos teóricos e práticos vistos em aula e sobre a solução adotada no trabalho. A nota atribuída a cada aluno i no trabalho (NotaTrabalhoi) será calculada da seguinte forma, onde Ai é a nota referente à apresentação do aluno i e S é a nota atribuída à solução do trabalho:
-
-NotaTrabalhoi = (Ai * S)/10
-
-Como indicado pela fórmula mostrada acima, a nota atribuída à solução adotada será ponderada pelo desempenho do aluno durante a apresentação do trabalho. Por exemplo, se o professor atribuir nota 10 para a solução adotada pelo grupo mas o aluno receber nota 5 pela apresentação - devido ao desconhecimento dos conteúdos teóricos, práticos e/ou da solução do trabalho - a sua nota final do trabalho será 5. A ausência no dia da apresentação ou recusa de realização da apresentação do trabalho implicará em nota zero na apresentação, fazendo com que a nota atribuída ao aluno também seja zero.
-
-Entrega do Exercício
-Submeta um arquivo .tar.gz gerado usando o comando make submission. Diferentemente das atividades de laboratório, a nota não será automática.
-
-Esqueleto
-(Atualizado em 24/04/2019 às 10:33)
-
-[26/06/2018 - 19:41] Adicionado  coração e reforçado o aviso de algumas regras já estão implementadas.
- 
-t1.tar.gz t1.tar.gz
+![](pizzeria-dyn.png?raw=true "Dicas")
