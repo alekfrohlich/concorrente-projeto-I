@@ -7,25 +7,25 @@
 
 A pizzaria a ser simulada é uma pizzaria à la carte. O funcionamento da pizzaria segue esse fluxo básico:
 
-1. Um grupo de n clientes chega na pizzaria.
-2. Grupos entram na pizzaria sem necessidade de autorização e competem por mesas.
- - Clientes de grupos diferentes não podem sentar na mesma mesa.
- - Todas as mesas possuem 4 lugares e podem ser movidas pelos clientes (não é necessário modelar o movimento das mesas).
- - É proibido separar as cadeiras das mesas, sentar nos cantos das mesas, sentar no chão ou comer em pé.
-3. Os clientes se sentam e usam um tablet deixado na mesa para fazer o pedido.
+- Um grupo de n clientes chega na pizzaria.
+- Grupos entram na pizzaria sem necessidade de autorização e competem por mesas.
+  - Clientes de grupos diferentes não podem sentar na mesma mesa.
+  - Todas as mesas possuem 4 lugares e podem ser movidas pelos clientes (não é necessário modelar o movimento das mesas).
+  - É proibido separar as cadeiras das mesas, sentar nos cantos das mesas, sentar no chão ou comer em pé.
+- Os clientes se sentam e usam um tablet deixado na mesa para fazer o pedido.
 De acordo com a norma ANPIRMB 7894, apenas uma pizza pode ser requisitada em cada pedido.
-4. O pedido aparece como uma ficha em um smart deck, na cozinha.
+- O pedido aparece como uma ficha em um smart deck, na cozinha.
  - As smart fichas são reutilizáveis. Depois que o pizzaiolo tira uma ficha e inicia a produção da pizza, a ficha pode ser reusada para um novo pedido.
  - Dom Giovanni não tinha muito dinheiro, então o número de smart fichas no deck é limitado.
-5. Os pizzaiolos processam os pedidos por ordem de chegada (o pedido mais antigo é feito antes).
-6. O pizzaiolo monta a pizza e, usando uma pá de pizza, a insere no forno à lenha.
-7. De acordo com a norma ANPIRMB 1497, o pizzaiolo deve dedicar toda sua atenção a cada pizza. Após inserir a pizza no forno, ele deve olhar para ela com carinho e monitorar os sofisticados aromas de queijo derretido com seu nariz aguçado. Quando a pizza estiver pronta, ele:
+- Os pizzaiolos processam os pedidos por ordem de chegada (o pedido mais antigo é feito antes).
+- O pizzaiolo monta a pizza e, usando uma pá de pizza, a insere no forno à lenha.
+- De acordo com a norma ANPIRMB 1497, o pizzaiolo deve dedicar toda sua atenção a cada pizza. Após inserir a pizza no forno, ele deve olhar para ela com carinho e monitorar os sofisticados aromas de queijo derretido com seu nariz aguçado. Quando a pizza estiver pronta, ele:
  - Retira a pizza do forno usando a pá de pizza.
  - Coloca a pizza em um local seguro, junto com um pegador.
  - Chama um garçom.
  - Quando o garçom chega, ele pega a pizza e a leva à mesa correspondente.
-8. O garçom leva a pizza até a mesa.
-9. Os clientes comem a pizza, mas de acordo com a Lei 47.574/97, os clientes devem pegar fatias da pizza usando um pegador de pizza.
+- O garçom leva a pizza até a mesa.
+- Os clientes comem a pizza, mas de acordo com a Lei 47.574/97, os clientes devem pegar fatias da pizza usando um pegador de pizza.
  - Há apenas um desses pegadores por pizza.
 
 # Recursos e Execução
@@ -147,40 +147,41 @@ void pizzaiolo_retirar_pizza_forno(pizza_t*);
 As seguintes funções serão chamadas pelas funções já implementadas ou pelos clientes. Você deverá implementá-las como especificado. Leve 
 as regras listadas anteriormente em consideração.
 
-1. `void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas, int n_garcons, int tam_deck, int n_grupos)`:
- - Inicializa quaisquer recursos e estruturas de dados que sejam necessários antes da pizzeria poder receber clientes.
- - Chamada pela função main() antes de qualquer outra função.
-2. `void pizzeria_close()`:
- - Impede que novos clientes sejam aceitos e bloqueia até que os clientes dentro da pizzeria saiam voluntariamente.
- - Todo cliente que já estava sentado antes do fechamento, tem direito a receber e comer pizzas pendentes e a fazer novos pedidos.
- - Clientes que ainda não se sentaram não conseguirão sentar pois pegar_mesas retornará -1.
- - Chamada pela função main() antes de chamar pizzeria_destroy() e terminar o programa.
-3. `void pizzeria_destroy()`:
- - Libera quaisquer recursos e estruturas de dados inicializados por pizzeria_init().
- - Chamada pelafunção main() antes de sair.
-4. `void garcom_chamar()`:
- - Chama um garçom, bloqueia até o garçom chegar.
- - Chamada pelo cliente líder.
-5. `void fazer_pedido(pedido_t* pedido)`:
- - Faz um pedido de pizza. O pedido aparece como uma smart ficha no smart deck. É proibido fazer um novo pedido antes de receber a 
- pizza.
- - Chamado pelo cliente líder.
-6. `void garcom_tchau(int tam_grupo)`:
- - Indica que o grupo vai embora.
- - Chamada pelo cliente líder antes do grupo deixar a pizzaria.
-7. `int pizza_pegar_fatia(pizza_t* pizza)`:
- - Pega uma fatia da pizza. Retorna 0 (sem erro) se conseguiu pegar a fatia, ou -1 (erro) se a pizza já acabou.
- - Chamada pelas threads representando clientes.
-8. `void pizza_assada(pizza_t* pizza)`:
- - Indica que a pizza dada como argumento (previamente colocada no forno) está pronta.
- - Chamada pelo nariz do pizzaiolo.
- - A thread que chamará essa função será uma thread específica para esse fim, criada nas profundezas do helper.c.
-9. `int pegar_mesas(int tam_grupo)`:
- - Algoritmo para conseguir mesas suficientes para um grupo de tam_grupo pessoas. Note que vários clientes podem chamar essa função ao 
+- `void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas, int n_garcons, int tam_deck, int n_grupos)`:
+  - Inicializa quaisquer recursos e estruturas de dados que sejam necessários antes da pizzeria poder receber clientes.
+  - Chamada pela função main() antes de qualquer outra função.
+- `void pizzeria_close()`:
+  - Impede que novos clientes sejam aceitos e bloqueia até que os clientes dentro da pizzeria saiam voluntariamente.
+  - Todo cliente que já estava sentado antes do fechamento, tem direito a receber e comer pizzas pendentes e a fazer novos pedidos.
+  - Clientes que ainda não se sentaram não conseguirão sentar pois pegar_mesas retornará -1.
+  - Chamada pela função main() antes de chamar pizzeria_destroy() e terminar o programa.
+- `void pizzeria_destroy()`:
+  - Libera quaisquer recursos e estruturas de dados inicializados por pizzeria_init().
+  - Chamada pelafunção main() antes de sair.
+- `void garcom_chamar()`:
+  - Chama um garçom, bloqueia até o garçom chegar.
+  - Chamada pelo cliente líder.
+- `void fazer_pedido(pedido_t* pedido)`:
+  - Faz um pedido de pizza. O pedido aparece como uma smart ficha no smart deck. É proibido fazer um novo pedido antes de receber a 
+  pizza.
+  - Chamado pelo cliente líder.
+- `void garcom_tchau(int tam_grupo)`:
+  - Indica que o grupo vai embora.
+  - Chamada pelo cliente líder antes do grupo deixar a pizzaria.
+- `int pizza_pegar_fatia(pizza_t* pizza)`:
+  - Pega uma fatia da pizza. Retorna 0 (sem erro) se conseguiu pegar a fatia, ou -1 (erro) se a pizza já acabou.
+  - Chamada pelas threads representando clientes.
+- `void pizza_assada(pizza_t* pizza)`:
+  - Indica que a pizza dada como argumento (previamente colocada no forno) está pronta.
+  - Chamada pelo nariz do pizzaiolo.
+  - A thread que chamará essa função será uma thread específica para esse fim, criada nas profundezas do helper.c.
+- `int pegar_mesas(int tam_grupo)`:
+  - Algoritmo para conseguir mesas suficientes para um grupo de tam_grupo pessoas. Note que vários clientes podem chamar essa função ao 
 mesmo tempo.
- - Deve retornar zero se não houve erro, ou -1 se a pizzaria já foi fechada com pizzeria_fechar().
- - implementação não precisa considerar o layout das mesas.
- - Chamada pelo cliente líder do grupo.
+  - Deve retornar zero se não houve erro, ou -1 se a pizzaria já foi fechada com pizzeria_fechar().
+  - implementação não precisa considerar o layout das mesas.
+  - Chamada pelo cliente líder do grupo.
+ 
  Pode ser útil criar outras funções chamadas por essas ou por novas threads.
 
 # Dicas
