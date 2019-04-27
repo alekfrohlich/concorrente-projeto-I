@@ -90,47 +90,52 @@ A função pegar_mesas(int tam_grupo) deve garantir que clientes de grupos difer
 Clientes fazem um pedido usando o tablet da mesa usando a função fazer_pedido(pedido_t*), que deve ser implementada. coração
 O smart deck recebe os pedidos pela rede e deve gerar fichas respeitando a ordem em que os pedidos foram feitos.
 O garçom deve entregar o pedido na mesa usando a função entregar_pedido(pedido_t*).
-Produção de pizzas:
 
-Pedidos mais antigos devem ser processados antes de pedidos mais novos.
-Uma pizza só pode ser colocada/tirada do forno com a pá de pizza por um pizzaiolo.
-As pizzas devem ser entregues na mesa pelo garçom.
-Um pizzaiolo pode montar uma única pizza por vez, usando a função pizzaiolo_montar_pizza(pedido_t*).
-Um pizzaiolo não pode montar uma pizza enquanto espera outra assar.
-Ao lado do deck de pedidos há espaço para uma pizza.
-Clientes consomem pizzas queimadas sem reclamar. coração
-Comportamento à mesa:
+## Produção de pizzas:
+ - Pedidos mais antigos devem ser processados antes de pedidos mais novos.
+ - Uma pizza só pode ser colocada/tirada do forno com a pá de pizza por um pizzaiolo.
+ - As pizzas devem ser entregues na mesa pelo garçom.
+ - Um pizzaiolo pode montar uma única pizza por vez, usando a função `pizzaiolo_montar_pizza(pedido_t*)`.
+ - Um pizzaiolo não pode montar uma pizza enquanto espera outra assar.
+ - Ao lado do deck de pedidos há espaço para uma pizza.
+ - Clientes consomem pizzas queimadas sem reclamar.
 
+## Comportamento à mesa:
 Clientes devem pegar fatias da pizza usando exclusivamente o pegador fornecido junto com a pizza.
 O pegador só pode ser usado por um cliente de cada vez.
-Saída da pizzaria:
 
-Os clientes chamam o garçom com chamar_garcom(). coração
-A função chamar_garcom() deve bloquear até o garçom chegar à mesa.
-O líder do grupo de clientes pede a conta e a paga ao garçom (isso já é dado pronto). coração
-Antes de sair da pizzeria, o líder do grupo de clientes se despede do garçom com a função garcom_tchau(int tam_grupo), onde tam_grupo é o número clientes no grupo. coração
-Escopo:
+## Saída da pizzaria:
+ - Os clientes chamam o garçom com `chamar_garcom()`.
+ - A função `chamar_garcom()` deve bloquear até o garçom chegar à mesa.
+ - O líder do grupo de clientes pede a conta e a paga ao garçom (isso já é dado pronto).
+ - Antes de sair da pizzeria, o líder do grupo de clientes se despede do garçom com a função `garcom_tchau(int tam_grupo)`, onde __tam_grupo__ é o número clientes no grupo.
 
-Se atente ao enunciado, alguns aspectos estão fora do escopo do simulador e não devem ser implementados (pagamento, limpeza, insumos, RH, pizzo da máfia, refrigerantes, acarajés, etc.)
-Comportamento dos clientes já está implementado.
-Arquivos:
+## Escopo:
+ - Se atente ao enunciado, alguns aspectos estão fora do escopo do simulador e não devem ser implementados (pagamento, limpeza, insumos, 
+ - RH, pizzo da máfia, refrigerantes, acarajés, etc.)
+ - Comportamento dos clientes já está implementado.
 
-O arquivo helper.c não deverá ser alterado. Alterações serão desfeitas automaticamente durante a correção!
-Não crie uma árvore de pastas com os arquivos .c dentro dessas pastas, o Makefile não compila arquivos dentro de pastas.
-Você pode criar quantos arquivos .c e .h quiser, desde que ao lado dos já existentes.
-Funções Fornecidas
-O comportamento dos clientes já é fornecido pronto e não deve ser modificado. A função main() dada irá fornecer grupos de clientes à pizzaria, cada cliente na forma de uma thread (usando pthreads). Essas threads de clientes irão interagir com funções que deverão ser implementadas (veja a próxima seção).
+## Arquivos:
+ - __O arquivo helper.c não deverá ser alterado. Alterações serão desfeitas automaticamente durante a correção!__
+ - Não crie uma árvore de pastas com os arquivos __.c__ dentro dessas pastas, o __Makefile__ não compila arquivos dentro de pastas.
+ - Você pode criar quantos arquivos __.c__ e __.h__ quiser, desde que ao lado dos já existentes.
+
+# Funções Fornecidas
+O comportamento dos clientes já é fornecido pronto e não deve ser modificado. A função `main()` dada irá fornecer grupos de clientes à 
+pizzaria, cada cliente na forma de uma thread (usando pthreads). Essas threads de clientes irão interagir com funções que deverão ser 
+implementadas (veja a próxima seção).
 
 Algumas operações envolvidas na pizzaria também são fornecidas já implementadas. Tentativas de alterar o comportamento dessas funções serão desfeitas pelo script corretor.
-
+```
 void pizzeria_open();
 void garcom_entregar(pizza_t*);
 pizza_t* pizzaiolo_montar_pizza(pedido_t*);
 void pizzaiolo_colocar_pizza_forno(pizza_t*);
 void pizzaiolo_retirar_pizza_forno(pizza_t*);
-
-Funções que Devem ser Implementadas
-As seguintes funções serão chamadas pelas funções já implementadas ou pelos clientes. Você deverá implementá-las como especificado. Leve as regras listadas anteriormente em consideração.
+```
+# Funções que Devem ser Implementadas
+As seguintes funções serão chamadas pelas funções já implementadas ou pelos clientes. Você deverá implementá-las como especificado. Leve 
+as regras listadas anteriormente em consideração.
 
 1. `void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas, int n_garcons, int tam_deck, int n_grupos)`:
  - Inicializa quaisquer recursos e estruturas de dados que sejam necessários antes da pizzeria poder receber clientes.
@@ -169,10 +174,10 @@ mesmo tempo.
  Pode ser útil criar outras funções chamadas por essas ou por novas threads.
 
 # Dicas
-- As implementações de pegar_mesas() e garcom_tchau() são traiçoeiras.
-- Ao executar o programa mensagens de CUIDADO: e ERRO: irão aparecer para alguns problemas.
+- As implementações de `pegar_mesas()` e `garcom_tchau()` são traiçoeiras.
+- Ao executar o programa mensagens de CUIDADO: e ERRO: irão aparecer para __alguns__ problemas.
 - Leaks de memória causarão descontos na nota e podem ser sintoma de algo errado.
-- Normalmente, pizzas não queimam.
+- __Normalmente__, pizzas não queimam.
 - Os dois gabaritos implementados possuem menos de 281 linhas (incluindo alguns comentários e linhas em branco).
 - Use isso como parâmetros para evitar gambiarras pirotécnicas ou sofrimento prolongado, não como uma competição de code golf.
 
