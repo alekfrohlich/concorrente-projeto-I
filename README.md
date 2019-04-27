@@ -61,35 +61,38 @@ Tempo de entrega da pizza: 30 amostras, de 789.960 a 1547.549 com média de 1406
 Tempo para chamar garçom: 60 amostras, de 0.000 a 0.003 com média de 0.001
 Tempo da visita do cliente: 30 amostras, de 835.049 a 1590.032 com média de 1448.389
 A execução do programa, usando a função main() fornecida no esqueleto, irá verificar o atendimento de algumas regras. Algumas regras serão verificadas apenas com o script secreto dos estagiários. Discernir o certo do errado (e quando procurar ajuda) é parte da tarefa. Em caso de problemas, mensagens detalhadas podem ser habilitadas usando a variável de ambiente INE5410_INFO:
-
+```
 INE5410_INFO=1 ./program tam_forno  n_pizzaiolos  n_mesas  n_garcons  tam_deck  n_grupos  segs_execução
 Seguem alguns cenários de teste:
-
+```
 Cenários
-Parâmetro	Mini forno	Greve de Pizzaiolos	Inflação moveleira	Greve de garçons	Escassez de fichas
-tam_forno	2	4	10	10	10
-n_pizzaiolos	10	2	10	10	10
-n_mesas	40	40	10	40	40
-n_garcons	40	40	10	2	40
-tam_deck	40	40	40	40	3
-n_grupos	40	40	40	40	40
-Regras
-Entre as regras, algumas já estão previamente implementadas. Isto é, o helper.c já garante que elas sejam cumpridas. Na lista abaixo, essas regras estão adornadas com um coração coração. Por exemplo, o helper.c implementa os clientes e já garante o cumprimento da norma ANPIRMB 7894 (apenas uma pizza pedido e novos pedidos apenas após consumir a pizza). Essas regras estão listadas aqui apenas para que a solução se adeque ao comportamento do helper.c, que segue a regra.
+|              | Cenários   |                     |                    |                  |                    |
+|--------------|------------|---------------------|--------------------|:----------------:|--------------------|
+| Parâmetro    | Mini forno | Greve de Pizzaiolos | Inflação moveleira | Greve de garçons | Escassez de fichas |
+| tam_forno    | 2          | 4                   | 10                 | 10               | 10                 |
+| n_pizzaiolos | 10         | 2                   | 10                 | 10               | 10                 |
+| n_mesas      | 40         | 40                  | 10                 | 40               | 40                 |
+| n_garcons    | 40         | 40                  | 10                 | 2                | 40                 |
+| tam_deck     | 40         | 40                  | 40                 | 40               | 3                  |
+| n_grupos     | 40         | 40                  | 40                 | 40               | 40                 |
 
-Funções que devem ser implementadas são pintadas de laranja e funções que já são dadas prontas, de verde. Veja as seções subsequentes.
+# Regras
+Entre as regras, algumas já estão previamente implementadas. Isto é, o __helper.c__ já garante que elas sejam cumpridas. Por exemplo, o 
+__helper.c__ implementa os __clientes e já garante__ o cumprimento da norma ANPIRMB 7894 (apenas uma pizza pedido e novos pedidos apenas 
+após consumir a pizza). __Essas regras estão listadas aqui apenas para que a solução se adeque ao comportamento do helper.c__,
+que segue a regra.
 
-Grupos de clientes: coração
+## Grupos de clientes:
+ - Clientes chegam em grupos de tamanhos aleatórios.
+ - Cada grupo possui um líder, e apenas o líder usará o tablet ou se comunicará com os garçons, através de chamadas de funções. coração
+ - O cliente líder cria e destrói os __pedido_t__.
+ - O cliente líder destruirá a __pizza_t*__ chamando `free()` após seu grupo devorá-la.
 
-Clientes chegam em grupos de tamanhos aleatórios. coração
-Cada grupo possui um líder, e apenas o líder usará o tablet ou se comunicará com os garçons, através de chamadas de funções. coração
-O cliente líder cria e destrói os pedido_t*. coração
-O cliente líder destruirá a pizza_t* chamando free() após seu grupo devorá-la. coração
-Chegada na pizzaria e pedido:
-
-A função pegar_mesas(int tam_grupo) deve garantir que clientes de grupos diferentes não sentem na mesma mesa.
-Clientes fazem um pedido usando o tablet da mesa usando a função fazer_pedido(pedido_t*), que deve ser implementada. coração
-O smart deck recebe os pedidos pela rede e deve gerar fichas respeitando a ordem em que os pedidos foram feitos.
-O garçom deve entregar o pedido na mesa usando a função entregar_pedido(pedido_t*).
+## Chegada na pizzaria e pedido:
+ - A função `pegar_mesas(int tam_grupo)` deve garantir que clientes de grupos diferentes não sentem na mesma mesa.
+ - Clientes fazem um pedido usando o tablet da mesa usando a função `fazer_pedido(pedido_t*)`, que deve ser implementada.
+ - O smart deck recebe os pedidos pela rede e deve gerar fichas respeitando a ordem em que os pedidos foram feitos.
+ - O garçom deve entregar o pedido na mesa usando a função `entregar_pedido(pedido_t*)`.
 
 ## Produção de pizzas:
  - Pedidos mais antigos devem ser processados antes de pedidos mais novos.
