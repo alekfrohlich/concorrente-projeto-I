@@ -7,26 +7,26 @@
 
 A pizzaria a ser simulada é uma pizzaria à la carte. O funcionamento da pizzaria segue esse fluxo básico:
 
-Um grupo de n clientes chega na pizzaria.
-Grupos entram na pizzaria sem necessidade de autorização e competem por mesas.
-Clientes de grupos diferentes não podem sentar na mesma mesa.
-Todas as mesas possuem 4 lugares e podem ser movidas pelos clientes (não é necessário modelar o movimento das mesas).
-É proibido separar as cadeiras das mesas, sentar nos cantos das mesas, sentar no chão ou comer em pé.
-Os clientes se sentam e usam um tablet deixado na mesa para fazer o pedido.
+1. Um grupo de n clientes chega na pizzaria.
+2. Grupos entram na pizzaria sem necessidade de autorização e competem por mesas.
+ - Clientes de grupos diferentes não podem sentar na mesma mesa.
+ - Todas as mesas possuem 4 lugares e podem ser movidas pelos clientes (não é necessário modelar o movimento das mesas).
+ - É proibido separar as cadeiras das mesas, sentar nos cantos das mesas, sentar no chão ou comer em pé.
+3. Os clientes se sentam e usam um tablet deixado na mesa para fazer o pedido.
 De acordo com a norma ANPIRMB 7894, apenas uma pizza pode ser requisitada em cada pedido.
-O pedido aparece como uma ficha em um smart deck, na cozinha.
-As smart fichas são reutilizáveis. Depois que o pizzaiolo tira uma ficha e inicia a produção da pizza, a ficha pode ser reusada para um novo pedido.
-Dom Giovanni não tinha muito dinheiro, então o número de smart fichas no deck é limitado.
-Os pizzaiolos processam os pedidos por ordem de chegada (o pedido mais antigo é feito antes).
-O pizzaiolo monta a pizza e, usando uma pá de pizza, a insere no forno à lenha.
-De acordo com a norma ANPIRMB 1497, o pizzaiolo deve dedicar toda sua atenção a cada pizza. Após inserir a pizza no forno, ele deve olhar para ela com carinho e monitorar os sofisticados aromas de queijo derretido com seu nariz aguçado. Quando a pizza estiver pronta, ele:
-Retira a pizza do forno usando a pá de pizza.
-Coloca a pizza em um local seguro, junto com um pegador.
-Chama um garçom.
-Quando o garçom chega, ele pega a pizza e a leva à mesa correspondente.
-O garçom leva a pizza até a mesa.
-Os clientes comem a pizza, mas de acordo com a Lei 47.574/97, os clientes devem pegar fatias da pizza usando um pegador de pizza.
-Há apenas um desses pegadores por pizza.
+4. O pedido aparece como uma ficha em um smart deck, na cozinha.
+ - As smart fichas são reutilizáveis. Depois que o pizzaiolo tira uma ficha e inicia a produção da pizza, a ficha pode ser reusada para um novo pedido.
+ - Dom Giovanni não tinha muito dinheiro, então o número de smart fichas no deck é limitado.
+5. Os pizzaiolos processam os pedidos por ordem de chegada (o pedido mais antigo é feito antes).
+6. O pizzaiolo monta a pizza e, usando uma pá de pizza, a insere no forno à lenha.
+7. De acordo com a norma ANPIRMB 1497, o pizzaiolo deve dedicar toda sua atenção a cada pizza. Após inserir a pizza no forno, ele deve olhar para ela com carinho e monitorar os sofisticados aromas de queijo derretido com seu nariz aguçado. Quando a pizza estiver pronta, ele:
+ - Retira a pizza do forno usando a pá de pizza.
+ - Coloca a pizza em um local seguro, junto com um pegador.
+ - Chama um garçom.
+ - Quando o garçom chega, ele pega a pizza e a leva à mesa correspondente.
+8. O garçom leva a pizza até a mesa.
+9. Os clientes comem a pizza, mas de acordo com a Lei 47.574/97, os clientes devem pegar fatias da pizza usando um pegador de pizza.
+ - Há apenas um desses pegadores por pizza.
 
 # Recursos e Execução
 Atentem aos seguintes recursos que devem ser gerenciados no simulador:
