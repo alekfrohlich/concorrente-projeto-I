@@ -23,7 +23,14 @@ void pizza_assada(pizza_t* pizza) {
 }
 
 int pegar_mesas(int tam_grupo) {
-    return -1; //erro: não fui implementado (ainda)!
+    pthread_mutex_lock(&escolhendo_mesa);
+    if (ceil(tam_grupo/4) >= n_mesas) {
+        n_mesas = ceil(tam_grupo/4);
+        pthread_mutex_unlock(&escolhendo_mesa);
+        return 0;
+    }
+    pthread_mutex_unlock*&escolhendo_mesa);
+    return -1;
 }
 
 void garcom_tchau(int tam_grupo) {
