@@ -24,7 +24,7 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
 }
 
 void pizzeria_close() {
-    // espera outras funcoes acabarem...
+    // pensando bem acho que nao precisa esperar, so nao pode sentar pessoas depois que fecha e pra isso ja tem o open = 0
     open = 0;
 }
 
@@ -36,6 +36,7 @@ void pizzeria_destroy() {
 }
 
 void pizza_assada(pizza_t* pizza) {
+    // nao entendi esse aqui? eh pra gente usar um wait(pizza.ts)? O que significa avisar que a pizza ta pronta?
 }
 
 int pegar_mesas(int tam_grupo) {
@@ -54,8 +55,8 @@ int pegar_mesas(int tam_grupo) {
 
 void garcom_tchau(int tam_grupo) {
     pthread_mutex_lock(&liberando_mesas);
-    int ceil = ceil(tam_grupo/4);
-    for (int i = 0; i < ceil; i++)
+    int mesas = mesas(tam_grupo/4);
+    for (int i = 0; i < mesas; i++)
         sem_post(&mesas_livres);
     pthread_mutex_unlock(&liberando_mesas);
 }
@@ -66,9 +67,21 @@ void garcom_chamar() {
 }
 
 void fazer_pedido(pedido_t* pedido) {
-    // colocar o pedido no smart deck
+    // colocar o pedido no smart deck (numa queue?)
+    // falta controlar a concorrencia disso:
+        pizza_t * pizza = pedido_montar_pizza(pedido);
+        pizzaiolo_colocar_pizza_forno(pedido);
+        pizzaiolo_retirar_pizza_forno(pedido);
+        garcom_entregar(pizza);
 }
 
 int pizza_pegar_fatia(pizza_t* pizza) {
-    return -1; // erro: não fui implementado (ainda)!
+    pthread_mutex_lock(&pegador_de_pizza);
+    if (pizza.fatias > 0) {
+        pizza.fatias -= 1;
+        pthread_mutex_unlock(&pegador_de_pizza);
+        return 0;
+    }
+    pthread_mutex_unlock(&pegador_de_pizza);
+    return -1;
 }
