@@ -14,25 +14,37 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
 }
 
 void pizzeria_close() {
+    // espera outras funcoes acabarem e entao setta open = 0
 }
 
 void pizzeria_destroy() {
+    // destroi mutexes e semaforos
 }
 
 void pizza_assada(pizza_t* pizza) {
 }
 
 int pegar_mesas(int tam_grupo) {
+    pthread_mutex_lock(&pegando_mesas);
+    int ceil = ceil(tam_grupo/4);
+    if (ceil <= num_mesas && open) {
+        num_mesas -= ceil;
+        pthread_mutex_unlock(&pegando_mesas);
+        return 0;
+    }
+    pthread_mutex_unlock(&pegando_mesas);
     return -1; //erro: não fui implementado (ainda)!
 }
 
 void garcom_tchau(int tam_grupo) {
+    
 }
 
 void garcom_chamar() {
 }
 
 void fazer_pedido(pedido_t* pedido) {
+
 }
 
 int pizza_pegar_fatia(pizza_t* pizza) {
