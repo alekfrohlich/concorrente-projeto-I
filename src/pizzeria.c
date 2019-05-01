@@ -33,7 +33,8 @@ void pizzeria_close() {
 void pizzeria_destroy() {
     // destroi mutexes, semaforos e estruturas de dados...
     sem_destory(&mesas_livres);
-    sem_destroy(&mgarcons_livres);
+    sem_destroy(&garcons_livres);
+    sem_destroy(&forno_livre);
     pthread_mutex_destroy(&pegando_mesas);
     pthread_mutex_destroy(&liberando_mesas);
 }
