@@ -7,7 +7,7 @@
 #include <math.h>
 #include <pthread.h>
 
-sem_t mesas_livres;
+sem_t mesas_livres, garcons_livres;
 pthread_mutex_t pegando_mesas, liberando_mesas;
 
 int open;
@@ -17,6 +17,7 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
                    int n_garcons, int tam_deck, int n_grupos) {
     // inicializando mutexes, semaforos e estruturas de dados...
     sem_init(&mesas_livres, 0 , n_mesas);
+    sem_init(&garcons_livres, 0, n_garcons);
     pthread_mutex_init(&pegando_mesas, NULL);
     pthread_mutex_init(&liberando_mesas, NULL);
     num_mesas = n_mesas;
@@ -31,12 +32,13 @@ void pizzeria_close() {
 void pizzeria_destroy() {
     // destroi mutexes, semaforos e estruturas de dados...
     sem_destory(&mesas_livres);
+    sem_destroy(&mgarcons_livres);
     pthread_mutex_destroy(&pegando_mesas);
     pthread_mutex_destroy(&liberando_mesas);
 }
 
 void pizza_assada(pizza_t* pizza) {
-    // nao entendi esse aqui? eh pra gente usar um wait(pizza.ts)? O que significa avisar que a pizza ta pronta?
+    // Porque que tem que avisar pro fazer_pedido() que a pizza ta pronta? 
 }
 
 int pegar_mesas(int tam_grupo) {
@@ -55,7 +57,7 @@ int pegar_mesas(int tam_grupo) {
 
 void garcom_tchau(int tam_grupo) {
     pthread_mutex_lock(&liberando_mesas);
-    int mesas = mesas(tam_grupo/4);
+    int mesas = ceil(tam_grupo/4);
     for (int i = 0; i < mesas; i++)
         sem_post(&mesas_livres);
     pthread_mutex_unlock(&liberando_mesas);
@@ -76,12 +78,17 @@ void fazer_pedido(pedido_t* pedido) {
 }
 
 int pizza_pegar_fatia(pizza_t* pizza) {
-    pthread_mutex_lock(&pegador_de_pizza);
+    // ATENCAO: a sintaxe pizza.pegador_de_pizza pode estar errada (favor verificar)
+    // e pode dar memory leak o esquema de criar um mutex pra cada pizza (mas pede na descricao)
+    // entao ficar bem atento que esse mutex esta sem seu pthread_mutex_destroy()!!!
+    pthread_mutex_t pegador = pizza.pegador_de_pizza;
+    pthread_mutex_init(&pegador);
+    pthread_mutex_lock(&pegador);
     if (pizza.fatias > 0) {
         pizza.fatias -= 1;
-        pthread_mutex_unlock(&pegador_de_pizza);
+        pthread_mutex_unlock(&pegador);
         return 0;
     }
-    pthread_mutex_unlock(&pegador_de_pizza);
+    pthread_mutex_unlock(&pegador);
     return -1;
 }
