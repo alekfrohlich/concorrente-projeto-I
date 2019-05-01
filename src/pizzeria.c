@@ -95,9 +95,8 @@ int pizza_pegar_fatia(pizza_t* pizza) {
     // ATENCAO: a sintaxe pizza.pegador_de_pizza pode estar errada (favor verificar)
     // e pode dar memory leak o esquema de criar um mutex pra cada pizza (mas pede na descricao)
     // entao ficar bem atento que esse mutex esta sem seu pthread_mutex_destroy()!!!
-    pthread_mutex_t pegador = pizza.pegador_de_pizza;
-    pthread_mutex_init(&pegador);
-    pthread_mutex_lock(&pegador);
+    pthread_mutex_init(&pizza->pegador);
+    pthread_mutex_lock(&pizza->pegador);
     if (pizza.fatias > 0) {
         pizza.fatias -= 1;
         pthread_mutex_unlock(&pegador);
