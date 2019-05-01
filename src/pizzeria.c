@@ -7,7 +7,7 @@
 #include <math.h>
 #include <pthread.h>
 
-sem_t mesas_livres, garcons_livres;
+sem_t mesas_livres, garcons_livres, forno_livre;
 pthread_mutex_t pegando_mesas, liberando_mesas;
 
 int open;
@@ -16,8 +16,9 @@ int num_mesas;
 void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
                    int n_garcons, int tam_deck, int n_grupos) {
     // inicializando mutexes, semaforos e estruturas de dados...
-    sem_init(&mesas_livres, 0 , n_mesas);
     sem_init(&garcons_livres, 0, n_garcons);
+    sem_init(&mesas_livres, 0 , n_mesas);
+    sem_init(&forno_livre, 0, tam_forno);
     pthread_mutex_init(&pegando_mesas, NULL);
     pthread_mutex_init(&liberando_mesas, NULL);
     num_mesas = n_mesas;
@@ -38,7 +39,8 @@ void pizzeria_destroy() {
 }
 
 void pizza_assada(pizza_t* pizza) {
-    // Porque que tem que avisar pro fazer_pedido() que a pizza ta pronta? 
+    // Pode fazer isso com um semaforo?
+    sem_post(&pizza.esperando_assar);
 }
 
 int pegar_mesas(int tam_grupo) {
@@ -69,11 +71,22 @@ void garcom_chamar() {
 }
 
 void fazer_pedido(pedido_t* pedido) {
+    // ATENCAO: separar essa funcao em partes menores!
     // colocar o pedido no smart deck (numa queue?)
-    // falta controlar a concorrencia disso:
-        pizza_t * pizza = pedido_montar_pizza(pedido);
-        pizzaiolo_colocar_pizza_forno(pedido);
-        pizzaiolo_retirar_pizza_forno(pedido);
+    // falta controlar a ordenacao dos pedidos:
+        sem_wait(&pizzaiolos_livres); 
+            pizza_t * pizza = pedido_montar_pizza(pedido);
+            sem_wait(&forno_livre);
+            pthread_mutex_lock(&pa_de_pizza);
+                pizzaiolo_colocar_pizza_forno(pedido);
+            pthread_mutex_unlock(&pa_de_pizza);
+            sem_wait(&pizza.esperando_assar);
+            pthread_mutex_lock(&pa_de_pizza);
+                pizzaiolo_retirar_pizza_forno(pedido);
+            pthread_mutex_unlock(&pa_de_pizza);
+            sem_post(&forno_livre);
+            garcom_chamar();
+        sem_post(&pizzaiolos_livres);
         garcom_entregar(pizza);
 }
 
