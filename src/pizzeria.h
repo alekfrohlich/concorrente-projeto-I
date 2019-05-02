@@ -21,7 +21,7 @@ typedef struct pizza_s {
     struct timespec ts; ///< IMPORTANTE! NÃO REMOVER
 
     /* você pode adicionar coisas aqui */
-    pthread_mutex_t pegador_de_pizza;
+    pthread_mutex_t pegador;
     sem_t esperando_assar;
 } pizza_t;
 

@@ -16,6 +16,8 @@ int num_mesas;
 
 queue_t* smart_deck;
 
+pizza_t * pizza_no_balcao;
+
 void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
                    int n_garcons, int tam_deck, int n_grupos) {
     // inicializando mutexes, semaforos e estruturas de dados...
@@ -34,6 +36,8 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
 void pizzeria_close() {
     // ATENCAO: precisa esperar todo mundo levantar!
     open = 0;
+    for (int i = 0 =; i < num_mesas; i++)
+        sem_wait(&mesas_livres);
 }
 
 void pizzeria_destroy() {
@@ -50,17 +54,20 @@ void pizzeria_destroy() {
 
 void pizza_assada(pizza_t* pizza) {
     // libera pizzaiolo_retirar_pizza_forno() e nao faz mais nada? vide email.
-    sem_post(&pizza->esperando_assar);
+    sem_post(&pizza->assada);
 }
 
 int pegar_mesas(int tam_grupo) {
     int mesas = ceil(tam_grupo/4);
+    lock()
     for (int i = 0; i < mesas; i++)
         sem_wait(&mesas_livres);
     if (mesas <= num_mesas && open) {
         num_mesas -= mesas;
+        unlock()
         return 0;
     }
+    unlock()
     return -1;
 }
 
@@ -76,38 +83,36 @@ void garcom_chamar() {
 }
 
 void fazer_pedido(pedido_t* pedido) {
-        queue.push(pedido);
-        // ATENCAO: Colocar nas threads dos pizzaiolos!!!
-        pthread_mutex_init(&pizza->pegador_de_pizza, NULL);
-        sem_init(&pizza->esperando_assar, 0, 0);
-        sem_wait(&forno_livre);
-        pthread_mutex_lock(&pa_de_pizza);
-            pizzaiolo_colocar_pizza_forno(pedido);
-        pthread_mutex_unlock(&pa_de_pizza);
-        sem_wait(&pizza->esperando_assar);
-        sem_destroy(&pizza->esperando_assar);
-        pthread_mutex_lock(&pa_de_pizza);
-            pizzaiolo_retirar_pizza_forno(pedido);
-        pthread_mutex_unlock(&pa_de_pizza);
-        sem_post(&forno_livre);
-        garcom_chamar();
-        garcom_entregar(pizza);
+    queue.push(pedido);
+    // ATENCAO: Colocar nas threads dos pizzaiolos!!!
 }
 
 thread pizzaiolo_n {
     ...
-    pizzaiolo_retirar_pizza_forno(pedido);
+    pedido_t * pedido = smart_deck.pop();
+    pizza_t * pizza = pizzaiolo_montar_pizza();
+    // pthread_mutex_init(&pizza->pegador_de_pizza, NULL);
+    sem_init(&pizza->assada, 0, 0);
+
+    sem_wait(&forno_livre);
+    pthread_mutex_lock(&pa_de_pizza);
+    pizzaiolo_colocar_pizza_forno(pizza);
+    pthread_mutex_unlock(&pa_de_pizza);
+    sem_wait(&pizza->assada);
+    pthread_mutex_lock(&pa_de_pizza);
+    pizzaiolo_retirar_pizza_forno(pizza);
+    pthread_mutex_unlock(&pa_de_pizza); 
+    
     pthread_mutex_lock(&espaco_vazio);
     garcom_charmar();
+    sem_post(&pedido_pronto);
     pthread_mutex_unlock(&espaco_vazio);
-    garcom_entregar(pizza);
-    sem_post(&garcons_livres);
-    ...
 }
 
 thread buscando_pizzas_do_deck {
-    
-
+    wait(&pedido_pronto); 
+    wait(&garcons_livres);
+    garcom_entregar(pizza)
 }
 
 int pizza_pegar_fatia(pizza_t* pizza) {
@@ -120,6 +125,5 @@ int pizza_pegar_fatia(pizza_t* pizza) {
         return 0;
     }
     pthread_mutex_unlock(&pegador);
-    pthread_mutex_destroy(&pizza->pegador);
     return -1;
 }
