@@ -5,7 +5,8 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include <pthread.h>
+#include <pthread.h> 28     pthread_mutex_init(&liberando_mesas, NULL);
+
 
 sem_t mesas_livres, garcons_livres, forno_livre;
 pthread_mutex_t pegando_mesas, liberando_mesas;
@@ -31,7 +32,7 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
 }
 
 void pizzeria_close() {
-    // precisa esperar alguem terminar de fazer alguma coisa? vide email.
+    // ATENCAO: precisa esperar todo mundo levantar!
     open = 0;
 }
 
@@ -49,58 +50,64 @@ void pizzeria_destroy() {
 
 void pizza_assada(pizza_t* pizza) {
     // libera pizzaiolo_retirar_pizza_forno() e nao faz mais nada? vide email.
-    sem_post(&pizza.esperando_assar);
+    sem_post(&pizza->esperando_assar);
 }
 
 int pegar_mesas(int tam_grupo) {
     int mesas = ceil(tam_grupo/4);
-    pthread_mutex_lock(&pegando_mesas);
     for (int i = 0; i < mesas; i++)
         sem_wait(&mesas_livres);
     if (mesas <= num_mesas && open) {
         num_mesas -= mesas;
-        pthread_mutex_unlock(&pegando_mesas);
         return 0;
     }
-    pthread_mutex_unlock(&pegando_mesas);
     return -1;
 }
 
 void garcom_tchau(int tam_grupo) {
     int mesas = ceil(tam_grupo/4);
-    pthread_mutex_lock(&liberando_mesas);
     for (int i = 0; i < mesas; i++)
         sem_post(&mesas_livres);
-    pthread_mutex_unlock(&liberando_mesas);
-}
-
-void garcom_chamar() {
-`   // essa funcao representa soh um delay? vide email.
-    sem_wait(&garcons_livres);
     sem_post(&gracons_livres);
 }
 
+void garcom_chamar() {
+    sem_wait(&garcons_livres);
+}
+
 void fazer_pedido(pedido_t* pedido) {
-    // ATENCAO: separar essa funcao em partes menores!
-    // colocar o pedido no smart deck (numa queue?)
-    // falta controlar a ordenacao dos pedidos:
-        sem_wait(&pizzaiolos_livres); 
-            pizza_t * pizza = pedido_montar_pizza(pedido);
-            pthread_mutex_init(&pizza->pegador_de_pizza, NULL);
-            sem_init(&pizza->esperando_assar, 0, 0);
-            sem_wait(&forno_livre);
-            pthread_mutex_lock(&pa_de_pizza);
-                pizzaiolo_colocar_pizza_forno(pedido);
-            pthread_mutex_unlock(&pa_de_pizza);
-            sem_wait(&pizza->esperando_assar);
-            sem_destroy(&pizza->esperando_assar);
-            pthread_mutex_lock(&pa_de_pizza);
-                pizzaiolo_retirar_pizza_forno(pedido);
-            pthread_mutex_unlock(&pa_de_pizza);
-            sem_post(&forno_livre);
-            garcom_chamar();
-        sem_post(&pizzaiolos_livres);
+        queue.push(pedido);
+        // ATENCAO: Colocar nas threads dos pizzaiolos!!!
+        pthread_mutex_init(&pizza->pegador_de_pizza, NULL);
+        sem_init(&pizza->esperando_assar, 0, 0);
+        sem_wait(&forno_livre);
+        pthread_mutex_lock(&pa_de_pizza);
+            pizzaiolo_colocar_pizza_forno(pedido);
+        pthread_mutex_unlock(&pa_de_pizza);
+        sem_wait(&pizza->esperando_assar);
+        sem_destroy(&pizza->esperando_assar);
+        pthread_mutex_lock(&pa_de_pizza);
+            pizzaiolo_retirar_pizza_forno(pedido);
+        pthread_mutex_unlock(&pa_de_pizza);
+        sem_post(&forno_livre);
+        garcom_chamar();
         garcom_entregar(pizza);
+}
+
+thread pizzaiolo_n {
+    ...
+    pizzaiolo_retirar_pizza_forno(pedido);
+    pthread_mutex_lock(&espaco_vazio);
+    garcom_charmar();
+    pthread_mutex_unlock(&espaco_vazio);
+    garcom_entregar(pizza);
+    sem_post(&garcons_livres);
+    ...
+}
+
+thread buscando_pizzas_do_deck {
+    
+
 }
 
 int pizza_pegar_fatia(pizza_t* pizza) {
