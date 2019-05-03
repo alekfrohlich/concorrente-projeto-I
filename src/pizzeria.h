@@ -3,7 +3,7 @@
 
 #include <semaphore.h>
 #include <pthread.h>
-
+ 
 typedef struct cliente_s cliente_t;
 
 typedef struct pedido_s {
@@ -39,5 +39,8 @@ void garcom_chamar();
 void fazer_pedido(pedido_t* pedido);
 
 int pizza_pegar_fatia(pizza_t* pizza);
+
+void *pizzaiolo_func(void *arg);
+void *garcons_buscam_pizza_deck(void *arg);
 
 #endif /*__PIZZERIA_H_*/
