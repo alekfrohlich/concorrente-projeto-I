@@ -1,4 +1,4 @@
-#ifndef __PIZZERIA_H_
+    #ifndef __PIZZERIA_H_
 #define __PIZZERIA_H_
 
 #include <semaphore.h>
@@ -40,7 +40,7 @@ void fazer_pedido(pedido_t* pedido);
 
 int pizza_pegar_fatia(pizza_t* pizza);
 
-void *pizzaiolo_func(void *arg);
-void *garcons_buscam_pizza_deck(void *arg);
+void * pizzaiolo_func(void * arg);
+void * garcom_busca_pizza_balcao(void * arg);
 
 #endif /*__PIZZERIA_H_*/
