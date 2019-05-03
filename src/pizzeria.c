@@ -9,10 +9,10 @@
 
 
 sem_t mesas_livres, garcons_livres, forno_livre;
-pthread_mutex_t pegando_mesas, liberando_mesas;
 
 int open;
 int num_mesas;
+int cozinha_fechada;
 
 queue_t* smart_deck;
 
@@ -21,16 +21,16 @@ pizza_t * pizza_no_balcao;
 void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
                    int n_garcons, int tam_deck, int n_grupos) {
     // inicializando mutexes, semaforos e estruturas de dados...
+    
     smart_deck = malloc(sizeof(queue_t));
 	queue_init(smart_deck, tam_deck);
 
     sem_init(&garcons_livres, 0, n_garcons);
     sem_init(&mesas_livres, 0 , n_mesas);
     sem_init(&forno_livre, 0, tam_forno);
-    pthread_mutex_init(&pegando_mesas, NULL);
-    pthread_mutex_init(&liberando_mesas, NULL);
     num_mesas = n_mesas;
     open = 1;
+    cozinha_fechado = 0;
 }
 
 void pizzeria_close() {
@@ -38,6 +38,7 @@ void pizzeria_close() {
     open = 0;
     for (int i = 0 =; i < num_mesas; i++)
         sem_wait(&mesas_livres);
+    cozinha_fechado = 1;
 }
 
 void pizzeria_destroy() {
@@ -48,8 +49,6 @@ void pizzeria_destroy() {
     sem_destory(&mesas_livres);
     sem_destroy(&garcons_livres);
     sem_destroy(&forno_livre);
-    pthread_mutex_destroy(&pegando_mesas);
-    pthread_mutex_destroy(&liberando_mesas);
 }
 
 void pizza_assada(pizza_t* pizza) {
@@ -83,41 +82,48 @@ void garcom_chamar() {
 }
 
 void fazer_pedido(pedido_t* pedido) {
-    queue.push(pedido);
-    // ATENCAO: Colocar nas threads dos pizzaiolos!!!
+    smart_deck.push(pedido);
 }
 
-thread pizzaiolo_n {
-    ...
+void * pizzaiolo_func(void * arg) {
+
     pedido_t * pedido = smart_deck.pop();
     pizza_t * pizza = pizzaiolo_montar_pizza();
-    // pthread_mutex_init(&pizza->pegador_de_pizza, NULL);
+    pthread_mutex_init(&pizza->pegador, NULL);
     sem_init(&pizza->assada, 0, 0);
 
     sem_wait(&forno_livre);
     pthread_mutex_lock(&pa_de_pizza);
-    pizzaiolo_colocar_pizza_forno(pizza);
+    {
+        pizzaiolo_colocar_pizza_forno(pizza);
+    {
     pthread_mutex_unlock(&pa_de_pizza);
     sem_wait(&pizza->assada);
-    pthread_mutex_lock(&pa_de_pizza);
-    pizzaiolo_retirar_pizza_forno(pizza);
+    {
+        pthread_mutex_lock(&pa_de_pizza);
+        pizzaiolo_retirar_pizza_forno(pizza);
+    {
     pthread_mutex_unlock(&pa_de_pizza); 
     
     pthread_mutex_lock(&espaco_vazio);
-    garcom_charmar();
-    sem_post(&pedido_pronto);
+    {
+        garcom_charmar();
+        sem_post(&pedido_pronto);
+    }
     pthread_mutex_unlock(&espaco_vazio);
 }
 
-thread buscando_pizzas_do_deck {
-    wait(&pedido_pronto); 
-    wait(&garcons_livres);
-    garcom_entregar(pizza)
+void * garcons_buscam_pizza_deck(void * arg) {
+    while (1) {
+        if (fechou_cozinha) 
+            break;
+        sem_wait(&pedido_pronto); 
+        garcom_entregar(pizza)
+        sem_post(&garcons_livre);
+    }
 }
 
 int pizza_pegar_fatia(pizza_t* pizza) {
-    // ATENCAO: como inicializar o pegador e o esperando_assar sem quebrar horrendamente
-    // quando varias pessoas tentarem comer pizza dps que nao tem mais pizza? Nao perguntamos ainda!!!
     pthread_mutex_lock(&pizza->pegador);
     if (pizza->fatias > 0) {
         pizza->fatias -= 1;
