@@ -15,11 +15,16 @@ pthread_mutex_t  espaco_vazio, pa_de_pizza;
 pthread_mutex_t pegando_mesas;
 
 
+int conta=0;
+
+
+int num_mesas_total;
+
 
 int open;
 int cozinha_fechada;
-const int num_mesas;
-const int num_pizzaiolos;
+int num_mesas;
+int num_pizzaiolos;
 
 
 queue_t * smart_deck;
@@ -33,11 +38,11 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
         smart_deck = malloc(sizeof(queue_t));
         queue_init(smart_deck, tam_deck);
 
-        pizzaiolos = malloc(sizeof(ptread_t) * n_pizzaiolos);
+        pizzaiolos = malloc(sizeof(pthread_t) * n_pizzaiolos);
 
         pthread_mutex_init(&espaco_vazio, NULL);
         pthread_mutex_init(&pa_de_pizza, NULL);
-        pthread_mutex_init(&pegando_mesas);
+        pthread_mutex_init(&pegando_mesas, NULL);
         
         sem_init(&garcons_livres, 0, n_garcons);
         sem_init(&mesas_livres, 0 , n_mesas);
@@ -45,6 +50,7 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
 
         num_pizzaiolos = n_pizzaiolos;
         num_mesas = n_mesas;
+        num_mesas_total = n_mesas;
         open = 1;
         cozinha_fechada = 0;
 
@@ -57,13 +63,15 @@ void pizzeria_close() {
     // ATENCAO: precisa esperar todo mundo levantar!
     if (open) {
         open = 0;
-        for (int i = 0; i < num_mesas; i++)
+
+        while (num_mesas!=num_mesas_total){
             sem_wait(&mesas_livres);
+        }
 
         cozinha_fechada = 1;
 
-        for (int i = 0; i < num_pizzaiolos)
-            queue_push_back(&smart_deck, (pedido_t *) NULL); 
+        for (int i = 0; i < num_pizzaiolos; i++)
+            queue_push_back(smart_deck, (pedido_t *) NULL); 
 
         for(int i=0; i< num_pizzaiolos; i++)
             pthread_join(pizzaiolos[i], NULL);
@@ -76,13 +84,16 @@ void pizzeria_destroy() {
     free(smart_deck);
     free(pizzaiolos);
 
+
     pthread_mutex_destroy(&espaco_vazio);
     pthread_mutex_destroy(&pa_de_pizza);
     pthread_mutex_destroy(&pegando_mesas);
 
+
     sem_destroy(&mesas_livres);
     sem_destroy(&garcons_livres);
     sem_destroy(&forno_livre);
+
 }
 
 void pizza_assada(pizza_t* pizza) {
@@ -91,23 +102,41 @@ void pizza_assada(pizza_t* pizza) {
 }
 
 int pegar_mesas(int tam_grupo) {
-    int mesas = ceil(tam_grupo/4);
-    pthread_mutex_lock(&pegando_mesas);
-    for (int i = 0; i < mesas; i++)
-        sem_wait(&mesas_livres);
-    if (mesas <= num_mesas && open) {
-        num_mesas -= mesas;
-        pthread_mutex_unlock(&pegando_mesas);
-        return 0;
+    if(open) {
+        int mesas = ceil(tam_grupo/4.0);
+        pthread_mutex_lock(&pegando_mesas);
+        if(!open) {
+            pthread_mutex_unlock(&pegando_mesas);
+            return -1;
+        }
+        for (int i = 0; i < mesas; i++){
+            sem_wait(&mesas_livres);
+            num_mesas--;
+            if(!open) {
+                for (int j = i; j >= 0; j--){
+                    sem_post(&mesas_livres);
+                    num_mesas ++;
+                }
+                pthread_mutex_unlock(&pegando_mesas);
+                return -1;
+            }
+        }
+        if (mesas <= num_mesas) {
+            // num_mesas -= mesas;
+            pthread_mutex_unlock(&pegando_mesas);
+            return 0;
+        }
     }
     pthread_mutex_unlock(&pegando_mesas);
     return -1;
 }
 
 void garcom_tchau(int tam_grupo) {
-    int mesas = ceil(tam_grupo/4);
-    for (int i = 0; i < mesas; i++)
+    int mesas = ceil(tam_grupo/4.0);
+    for (int i = 0; i < mesas; i++){    
         sem_post(&mesas_livres);
+        num_mesas++;
+    }
     sem_post(&garcons_livres);
 }
 
@@ -119,6 +148,12 @@ void fazer_pedido(pedido_t* pedido) {
     queue_push_back(smart_deck,pedido);
 }
 
+void * garcom_busca_pizza_balcao(void * arg) {
+    pizza_t* pizza =  (pizza_t *) arg;
+    garcom_entregar(pizza);
+    sem_post(&garcons_livres);
+    pthread_exit(NULL);
+}
 void * pizzaiolo_func(void * arg) {
     while(1) {
         pedido_t * pedido = (pedido_t *) queue_wait(smart_deck);
@@ -127,7 +162,6 @@ void * pizzaiolo_func(void * arg) {
         pizza_t * pizza = pizzaiolo_montar_pizza(pedido);
         pthread_mutex_init(&pizza->pegador, NULL);
         sem_init(&pizza->assada, 0, 0);
-
         sem_wait(&forno_livre);
         pthread_mutex_lock(&pa_de_pizza);
         pizzaiolo_colocar_forno(pizza);
@@ -136,6 +170,7 @@ void * pizzaiolo_func(void * arg) {
         sem_wait(&pizza->assada);
         pthread_mutex_lock(&pa_de_pizza);
         pizzaiolo_retirar_forno(pizza);
+        sem_post(&forno_livre);
         pthread_mutex_unlock(&pa_de_pizza); 
 
         pthread_mutex_lock(&espaco_vazio);
@@ -147,12 +182,6 @@ void * pizzaiolo_func(void * arg) {
     pthread_exit(NULL);
 }
 
-void * garcom_busca_pizza_balcao(void * arg) {
-    pizza_t* pizza =  (pizza_t *) arg;
-    garcom_entregar(pizza);
-    sem_post(&garcons_livres);
-    pthread_exit(NULL);
-}
 
 int pizza_pegar_fatia(pizza_t* pizza) {
     pthread_mutex_lock(&pizza->pegador);
