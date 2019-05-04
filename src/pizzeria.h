@@ -1,9 +1,9 @@
-#ifndef __PIZZERIA_H_
+    #ifndef __PIZZERIA_H_
 #define __PIZZERIA_H_
 
 #include <semaphore.h>
 #include <pthread.h>
-
+ 
 typedef struct cliente_s cliente_t;
 
 typedef struct pedido_s {
@@ -21,8 +21,8 @@ typedef struct pizza_s {
     struct timespec ts; ///< IMPORTANTE! NÃO REMOVER
 
     /* você pode adicionar coisas aqui */
-    pthread_mutex_t pegador_de_pizza;
-    sem_t esperando_assar;
+    pthread_mutex_t pegador;
+    sem_t assada;
 } pizza_t;
 
 void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
@@ -39,5 +39,8 @@ void garcom_chamar();
 void fazer_pedido(pedido_t* pedido);
 
 int pizza_pegar_fatia(pizza_t* pizza);
+
+void * pizzaiolo_func(void * arg);
+void * garcom_busca_pizza_balcao(void * arg);
 
 #endif /*__PIZZERIA_H_*/
