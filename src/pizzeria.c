@@ -8,7 +8,7 @@
 #include <pthread.h> 
 
 sem_t mesas_livres, garcons_livres, forno_livre;
-pthread_mutex_t  espaco_vazio, pa_de_pizza pthread_mutex_t pegando_mesas;
+pthread_mutex_t espaco_vazio, pa_de_pizza, pegando_mesas;
 
 int open;
 int cozinha_fechada;
@@ -139,6 +139,7 @@ int pegar_mesas(int tam_grupo) {
             return 0;
         }
     }
+    pthread_mutex_unlock(&mesas_livres);
     return -1;
 }
 
