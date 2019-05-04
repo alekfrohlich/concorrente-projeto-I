@@ -8,21 +8,12 @@
 #include <pthread.h> 
 
 sem_t mesas_livres, garcons_livres, forno_livre;
-pthread_mutex_t  espaco_vazio, pa_de_pizza;
-
-
-
-pthread_mutex_t pegando_mesas;
-
-
-int num_mesas_total;
-
+pthread_mutex_t  espaco_vazio, pa_de_pizza pthread_mutex_t pegando_mesas;
 
 int open;
 int cozinha_fechada;
 int num_mesas;
 int num_pizzaiolos;
-
 
 queue_t * smart_deck;
 
@@ -83,7 +74,6 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
 
         num_pizzaiolos = n_pizzaiolos;
         num_mesas = n_mesas;
-        num_mesas_total = n_mesas;
         open = 1;
         cozinha_fechada = 0;
 
@@ -97,9 +87,8 @@ void pizzeria_close() {
     if (open) {
         open = 0;
 
-        while (num_mesas!=num_mesas_total){
+        for (int i = 0; i < num_mesas; i++) 
             sem_wait(&mesas_livres);
-        }
 
         cozinha_fechada = 1;
 
@@ -137,13 +126,17 @@ void pizza_assada(pizza_t* pizza) {
 int pegar_mesas(int tam_grupo) {
     while (1) {
         int mesas = ceil(tam_grupo/4.0);
+        if (mesas > num_mesas)
+            return -1;
         sem_wait(&abriu_lugar);
-        pthread_mutex_lock(&tentando_sentar);
+        pthread_mutex_lock(&pegando_mesas);
         int value;
         pthread_mutex_getvalue(&mesas_livres, &value);
-        if (value >= mesas) {
+        if (value >= mesas && open) {
             for (int i = 0; i < mesas; i++)
-                sem_post(&mesas_livres);
+                sem_wait(&mesas_livres);
+            pthread_mutex_unlock(&pegando_mesas);
+            return 0;
         }
     }
     return -1;
@@ -153,7 +146,6 @@ void garcom_tchau(int tam_grupo) {
     int mesas = ceil(tam_grupo/4.0);
     for (int i = 0; i < mesas; i++){    
         sem_post(&mesas_livres);
-        num_mesas++;
     }
     sem_post(&garcons_livres);
 }
@@ -165,8 +157,6 @@ void garcom_chamar() {
 void fazer_pedido(pedido_t* pedido) {
     queue_push_back(smart_deck,pedido);
 }
-
-
 
 int pizza_pegar_fatia(pizza_t* pizza) {
     pthread_mutex_lock(&pizza->pegador);
