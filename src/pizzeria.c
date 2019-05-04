@@ -154,6 +154,7 @@ void * garcom_busca_pizza_balcao(void * arg) {
     sem_post(&garcons_livres);
     pthread_exit(NULL);
 }
+
 void * pizzaiolo_func(void * arg) {
     while(1) {
         pedido_t * pedido = (pedido_t *) queue_wait(smart_deck);
@@ -177,6 +178,7 @@ void * pizzaiolo_func(void * arg) {
         garcom_chamar();
         pthread_t garcom_busca_pizza_balcao_;
         pthread_create(&garcom_busca_pizza_balcao_, NULL, garcom_busca_pizza_balcao, (void*) pizza);
+        pthread_detach(garcom_busca_pizza_balcao_);
         pthread_mutex_unlock(&espaco_vazio);
     }
     pthread_exit(NULL);
