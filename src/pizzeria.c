@@ -15,9 +15,6 @@ pthread_mutex_t  espaco_vazio, pa_de_pizza;
 pthread_mutex_t pegando_mesas;
 
 
-int conta=0;
-
-
 int num_mesas_total;
 
 
