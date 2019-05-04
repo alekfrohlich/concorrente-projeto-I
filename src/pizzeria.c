@@ -135,32 +135,17 @@ void pizza_assada(pizza_t* pizza) {
 }
 
 int pegar_mesas(int tam_grupo) {
-    if(open) {
+    while (1) {
         int mesas = ceil(tam_grupo/4.0);
-        pthread_mutex_lock(&pegando_mesas);
-        if(!open) {
-            pthread_mutex_unlock(&pegando_mesas);
-            return -1;
-        }
-        for (int i = 0; i < mesas; i++){
-            sem_wait(&mesas_livres);
-            num_mesas--;
-            if(!open) {
-                for (int j = i; j >= 0; j--){
-                    sem_post(&mesas_livres);
-                    num_mesas ++;
-                }
-                pthread_mutex_unlock(&pegando_mesas);
-                return -1;
-            }
-        }
-        if (mesas <= num_mesas) {
-            // num_mesas -= mesas;
-            pthread_mutex_unlock(&pegando_mesas);
-            return 0;
+        sem_wait(&abriu_lugar);
+        pthread_mutex_lock(&tentando_sentar);
+        int value;
+        pthread_mutex_getvalue(&mesas_livres, &value);
+        if (value >= mesas) {
+            for (int i = 0; i < mesas; i++)
+                sem_post(&mesas_livres);
         }
     }
-    pthread_mutex_unlock(&pegando_mesas);
     return -1;
 }
 
