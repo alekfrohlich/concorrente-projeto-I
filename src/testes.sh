@@ -1,6 +1,6 @@
 make
-#echo "testando cenario Mini forno..."
-#./program 2 10 40 40 40 40 5
+echo "testando cenario Mini forno..."
+./program 2 10 40 40 40 40 1
 echo "testando cenario Greve de Pizzaiolos..." 
 ./program 4 2 40 40 40 40 1
 echo "testando cenario Inflacao moveleira..."

@@ -8,7 +8,7 @@
 #include <pthread.h> 
 
 sem_t mesas_livres, garcons_livres, forno_livre, abriu_lugar;
-pthread_mutex_t espaco_vazio, pa_de_pizza, pegando_mesas;
+pthread_mutex_t espaco_vazio, pa_de_pizza, pegando_mesas, value_abriu, value_mesas;
 
 int open;
 int cozinha_fechada;
@@ -67,6 +67,11 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
         pthread_mutex_init(&espaco_vazio, NULL);
         pthread_mutex_init(&pa_de_pizza, NULL);
         pthread_mutex_init(&pegando_mesas, NULL);
+
+
+        pthread_mutex_init(&value_mesas, NULL);
+        pthread_mutex_init(&value_abriu, NULL);
+
         
         sem_init(&garcons_livres, 0, n_garcons);
         sem_init(&mesas_livres, 0 , n_mesas);
@@ -112,6 +117,9 @@ void pizzeria_destroy() {
     pthread_mutex_destroy(&pa_de_pizza);
     pthread_mutex_destroy(&pegando_mesas);
 
+    pthread_mutex_destroy(&value_abriu);
+    pthread_mutex_destroy(&value_mesas);
+
 
     sem_destroy(&mesas_livres);
     sem_destroy(&garcons_livres);
@@ -135,11 +143,15 @@ int pegar_mesas(int tam_grupo) {
             return -1;
 
         int value;
+        pthread_mutex_lock(&value_abriu);
         sem_getvalue(&mesas_livres, &value);
         if(mesas > value) 
             sem_wait(&abriu_lugar);
 
+        pthread_mutex_unlock(value_abriu);
+
         pthread_mutex_lock(&pegando_mesas);
+        pthread_mutex_lock(&value_mesas);
         sem_getvalue(&mesas_livres, &value);
         if (value >= mesas && open) {
             for (int i = 0; i < mesas; i++)
@@ -147,6 +159,7 @@ int pegar_mesas(int tam_grupo) {
             pthread_mutex_unlock(&pegando_mesas);
             return 0;
         }
+        pthread_mutex_unlock(&value_mesas);
         sem_post(&abriu_lugar);
         pthread_mutex_unlock(&pegando_mesas);
     }
@@ -159,10 +172,11 @@ void garcom_tchau(int tam_grupo) {
     }
 
     int value;
+    pthread_mutex_lock(&value_abriu);
     sem_getvalue(&abriu_lugar, &value);
-    for (int i = 0; i < value; i++)
+    for (int i = 0; i < 100; i++)
         sem_post(&abriu_lugar);
-
+    pthread_mutex_unlock(&value_abriu);
     sem_post(&garcons_livres);
 }
 
