@@ -71,7 +71,7 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
         sem_init(&garcons_livres, 0, n_garcons);
         sem_init(&mesas_livres, 0 , n_mesas);
         sem_init(&forno_livre, 0, tam_forno);
-        sem_init(&abriu_lugar, 0, 1);
+        sem_init(&abriu_lugar, 0, n_grupos);
 
         num_pizzaiolos = n_pizzaiolos;
         num_mesas = n_mesas;
@@ -129,14 +129,18 @@ int pegar_mesas(int tam_grupo) {
     while (1) {
         if (!open)
             return -1;
+
         int mesas = ceil(tam_grupo/4.0);
         if (mesas > num_mesas)
             return -1;
+
         int value;
-        if(mesas > sem_getvalue(&mesas_livres, &value))
+        sem_getvalue(&mesas_livres, &value);
+        if(mesas > value) 
             sem_wait(&abriu_lugar);
+
         pthread_mutex_lock(&pegando_mesas);
-        pthread_mutex_getvalue(&mesas_livres, &value);
+        sem_getvalue(&mesas_livres, &value);
         if (value >= mesas && open) {
             for (int i = 0; i < mesas; i++)
                 sem_wait(&mesas_livres);
@@ -144,7 +148,7 @@ int pegar_mesas(int tam_grupo) {
             return 0;
         }
         sem_post(&abriu_lugar);
-        pthread_mutex_unlock(&mesas_livres);
+        pthread_mutex_unlock(&pegando_mesas);
     }
 }
 
@@ -153,7 +157,11 @@ void garcom_tchau(int tam_grupo) {
     for (int i = 0; i < mesas; i++){    
         sem_post(&mesas_livres);
     }
-    sem_post(&abriu_lugar);
+
+    int value;
+    sem_getvalue(&abriu_lugar, &value);
+    for (int i = 0; i < value; i++)
+        sem_post(&abriu_lugar);
 
     sem_post(&garcons_livres);
 }
