@@ -7,13 +7,15 @@
 #include <math.h>
 #include <pthread.h> 
 
-sem_t mesas_livres, garcons_livres, forno_livre, abriu_lugar;
+sem_t garcons_livres, forno_livre;
 pthread_mutex_t espaco_vazio, pa_de_pizza, pegando_mesas;
+pthread_cond_t liberou_mesas, ultimo_cliente_saiu;
 
 int open;
 int cozinha_fechada;
-int num_mesas;
+int num_mesas_total;
 int num_pizzaiolos;
+int mesas_livres;
 
 queue_t * smart_deck;
 
@@ -68,13 +70,15 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
         pthread_mutex_init(&pa_de_pizza, NULL);
         pthread_mutex_init(&pegando_mesas, NULL);
 
-        sem_init(&garcons_livres, 0, n_garcons);
-        sem_init(&mesas_livres, 0 , n_mesas);
-        sem_init(&forno_livre, 0, tam_forno);
-        sem_init(&abriu_lugar, 0, n_grupos);
+        pthread_cond_init(&liberou_mesas, NULL);
+        pthread_cond_init(&ultimo_cliente_saiu, NULL);
 
+        sem_init(&garcons_livres, 0, n_garcons);
+        sem_init(&forno_livre, 0, tam_forno);
+
+        mesas_livres = num_mesas_total;
         num_pizzaiolos = n_pizzaiolos;
-        num_mesas = n_mesas;
+        num_mesas_total = n_mesas;
         open = 1;
         cozinha_fechada = 0;
 
@@ -87,9 +91,12 @@ void pizzeria_close() {
     // ATENCAO: precisa esperar todo mundo levantar!
     if (open) {
         open = 0;
-
-        for (int i = 0; i < num_mesas; i++) 
-            sem_wait(&mesas_livres);
+        
+        pthread_mutex_lock(&pegando_mesas);
+        while (mesas_livres != num_mesas_total) {
+            pthread_cond_wait(&ultimo_cliente_saiu, &pegando_mesas);
+        }
+        pthread_mutex_unlock(&pegando_mesas);
 
         cozinha_fechada = 1;
 
@@ -111,10 +118,11 @@ void pizzeria_destroy() {
     pthread_mutex_destroy(&pa_de_pizza);
     pthread_mutex_destroy(&pegando_mesas);
 
-    sem_destroy(&mesas_livres);
+    pthread_cond_destroy(&liberou_mesas);
+    pthread_cond_destroy(&liberou_mesas);
+
     sem_destroy(&garcons_livres);
     sem_destroy(&forno_livre);
-    sem_destroy(&abriu_lugar);
 }
 
 void pizza_assada(pizza_t* pizza) {
@@ -123,43 +131,38 @@ void pizza_assada(pizza_t* pizza) {
 }
 
 int pegar_mesas(int tam_grupo) {
-    while (1) {
-        if (!open)
-            return -1;
+    while (open) {
 
         int mesas = ceil(tam_grupo/4.0);
-        if (mesas > num_mesas)
+        if (mesas > num_mesas_total)
             return -1;
 
-        int value;
-        sem_getvalue(&mesas_livres, &value);
-        if(mesas > value) 
-            sem_wait(&abriu_lugar);
-
-
         pthread_mutex_lock(&pegando_mesas);
-        sem_getvalue(&mesas_livres, &value);
-        if (value >= mesas && open) {
-            for (int i = 0; i < mesas; i++)
-                sem_wait(&mesas_livres);
+        while (mesas > mesas_livres && open)
+            pthread_cond_wait(&liberou_mesas, &pegando_mesas);
+
+
+        if (open) {
+            mesas_livres -= mesas;
             pthread_mutex_unlock(&pegando_mesas);
             return 0;
         }
-        sem_post(&abriu_lugar);
         pthread_mutex_unlock(&pegando_mesas);
     }
+    return -1;
 }
 
 void garcom_tchau(int tam_grupo) {
-    int mesas = ceil(tam_grupo/4.0);
-    for (int i = 0; i < mesas; i++){    
-        sem_post(&mesas_livres);
-    }
 
-    int value;
-    sem_getvalue(&abriu_lugar, &value);
-    for (int i = 0; i < value; i++)
-        sem_post(&abriu_lugar);
+    int mesas = ceil(tam_grupo/4.0);
+
+    pthread_mutex_lock(&pegando_mesas);
+    mesas_livres += mesas;
+    pthread_cond_broadcast(&liberou_mesas);
+    if (mesas_livres == num_mesas_total && !open) // E se o ultimo cliente sair antes da pizzaria fechar??
+        pthread_cond_broadcast(&ultimo_cliente_saiu);
+    pthread_mutex_unlock(&pegando_mesas);
+   
     sem_post(&garcons_livres);
 }
 
