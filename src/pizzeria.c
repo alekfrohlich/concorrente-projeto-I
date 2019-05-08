@@ -76,7 +76,7 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
         sem_init(&garcons_livres, 0, n_garcons);
         sem_init(&forno_livre, 0, tam_forno);
 
-        mesas_livres = num_mesas_total;
+        mesas_livres = n_mesas;
         num_pizzaiolos = n_pizzaiolos;
         num_mesas_total = n_mesas;
         open = 1;
@@ -140,7 +140,6 @@ int pegar_mesas(int tam_grupo) {
         pthread_mutex_lock(&pegando_mesas);
         while (mesas > mesas_livres && open)
             pthread_cond_wait(&liberou_mesas, &pegando_mesas);
-
 
         if (open) {
             mesas_livres -= mesas;
