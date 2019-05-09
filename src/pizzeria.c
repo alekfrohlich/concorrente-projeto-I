@@ -42,6 +42,7 @@ void * pizzaiolo_func(void * arg) {
         pthread_mutex_unlock(&pa_de_pizza);
 
         sem_wait(&pizza->assada);
+        sem_destroy(&pizza->assada);
         pthread_mutex_lock(&pa_de_pizza);
         pizzaiolo_retirar_forno(pizza);
         sem_post(&forno_livre);
