@@ -88,7 +88,6 @@ void pizzeria_init(int tam_forno, int n_pizzaiolos, int n_mesas,
 }
 
 void pizzeria_close() {
-    // ATENCAO: precisa esperar todo mundo levantar!
     if (open) {
         open = 0;
         
@@ -158,7 +157,7 @@ void garcom_tchau(int tam_grupo) {
     pthread_mutex_lock(&pegando_mesas);
     mesas_livres += mesas;
     pthread_cond_broadcast(&liberou_mesas);
-    if (mesas_livres == num_mesas_total && !open) // E se o ultimo cliente sair antes da pizzaria fechar??
+    if (mesas_livres == num_mesas_total && !open)
         pthread_cond_broadcast(&ultimo_cliente_saiu);
     pthread_mutex_unlock(&pegando_mesas);
    
